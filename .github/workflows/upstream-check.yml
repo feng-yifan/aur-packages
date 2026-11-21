@@ -38,7 +38,12 @@ jobs:
       AUR_KNOWN_HOSTS: ${{ secrets.AUR_KNOWN_HOSTS }}
     steps:
       - name: Install tooling
-        run: pacman -Syu --noconfirm --needed git openssh jq curl namcap github-cli sudo
+        run: |
+          pacman -Syu --noconfirm --needed \
+            git openssh jq curl namcap github-cli sudo \
+            gtk3 nss libxss libxtst libnotify libsecret at-spi2-core util-linux-libs \
+            alsa-lib libpulse libxcomposite libxdamage libxrandr libxfixes libxkbcommon \
+            libcups nspr xdg-utils mesa dbus expat hicolor-icon-theme
 
       - name: Checkout
         uses: actions/checkout@v4
