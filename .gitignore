@@ -1,0 +1,14 @@
+# makepkg build directories and produced packages
+src/
+pkg/
+*.pkg.tar.*
+*.pkg.tar.zst
+
+# downloaded upstream release artifacts
+*.deb
+*.AppImage
+*.tar.gz
+*.rpm
+
+# CI runtime state
+.ci-state

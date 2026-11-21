@@ -1,0 +1,66 @@
+name: publish-aur
+
+# Build + verify the current PKGBUILD and publish to the AUR.
+# - Runs automatically on a push to main that touches the package, but ONLY when
+#   the repository variable AUR_AUTOPUBLISH is 'true'.
+# - Can be triggered manually (workflow_dispatch) for an explicit publish.
+# This is also how a manual fix (e.g. pkgrel 2.0.2-1 -> 2.0.2-2) gets published.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'twilight-echo-bin/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: build/verify only, do not publish to AUR'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: aur-twilight-echo
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || vars.AUR_AUTOPUBLISH == 'true'
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
+      options: --user root
+    env:
+      PKG: twilight-echo-bin
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+      AUR_AUTOPUBLISH: ${{ vars.AUR_AUTOPUBLISH || 'false' }}
+      GH_TOKEN: ${{ github.token }}
+      AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+      AUR_KNOWN_HOSTS: ${{ secrets.AUR_KNOWN_HOSTS }}
+    steps:
+      - name: Install tooling
+        run: pacman -Syu --noconfirm --needed git openssh jq curl namcap github-cli sudo
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create build user
+        run: |
+          useradd -m builder || true
+          echo 'builder ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
+
+      - name: Fix workspace ownership
+        run: chown -R builder:builder "$GITHUB_WORKSPACE"
+
+      - name: Run publish pipeline
+        run: |
+          sudo -u builder \
+            env PKG="$PKG" DRY_RUN="$DRY_RUN" AUR_AUTOPUBLISH="$AUR_AUTOPUBLISH" \
+                GH_TOKEN="$GH_TOKEN" AUR_SSH_PRIVATE_KEY="$AUR_SSH_PRIVATE_KEY" \
+                AUR_KNOWN_HOSTS="$AUR_KNOWN_HOSTS" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+                GITHUB_REF_NAME="$GITHUB_REF_NAME" GITHUB_SERVER_URL="$GITHUB_SERVER_URL" \
+                HOME=/home/builder \
+            bash scripts/pipeline.sh publish
