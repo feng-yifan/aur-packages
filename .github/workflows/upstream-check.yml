@@ -43,7 +43,7 @@ jobs:
             git openssh jq curl namcap github-cli sudo \
             gtk3 nss libxss libxtst libnotify libsecret at-spi2-core util-linux-libs \
             alsa-lib libpulse libxcomposite libxdamage libxrandr libxfixes libxkbcommon \
-            libcups nspr xdg-utils mesa dbus expat hicolor-icon-theme
+            libcups nspr xdg-utils mesa dbus expat hicolor-icon-theme imagemagick
 
       - name: Checkout
         uses: actions/checkout@v4
