@@ -1,13 +1,14 @@
 # Maintainer: Feng Yifan <fengyifan@blocgo.com>
 # Upstream: https://github.com/Px-asen/Twilight_Echo
 # Binary repackage (-bin) of the official Linux .deb release.
+# This package is a faithful repackage; upstream-specific fixes (e.g. the
+# Linux launcher icon sizes / desktop Categories) are handled upstream, not here.
 # NOTE: scripts/check-upstream.sh updates only these anchors when a new
 # upstream version is detected: pkgver=, pkgrel=, and sha256sums_x86_64=(...).
-# Keep manual fixes elsewhere; they are preserved across automated bumps.
 
 pkgname=twilight-echo-bin
 pkgver=2.0.2
-pkgrel=2
+pkgrel=1
 pkgdesc='Modern desktop music player for local collections, streaming exploration and HiFi playback (binary release)'
 arch=('x86_64')
 url='https://github.com/Px-asen/Twilight_Echo'
@@ -33,7 +34,6 @@ depends=(
   xdg-utils
   mesa
 )
-makedepends=('imagemagick')   # 仅构建期用于把上游 1024 图标缩放成标准尺寸
 optdepends=('libappindicator-gtk3: system tray / indicator support')
 provides=('twilight-echo')
 conflicts=('twilight-echo')
@@ -60,22 +60,4 @@ package() {
 
   # Apache-2.0 license text.
   install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
-
-  # Upstream ships the icon only at hicolor/1024x1024, but hicolor's index.theme
-  # does not declare that size, so GTK/launchers never resolve it. Rebuild the
-  # icon at the standard declared sizes and add a /usr/share/pixmaps fallback.
-  local _src_icon="$pkgdir/usr/share/icons/hicolor/1024x1024/apps/music.png"
-  local _im
-  if command -v magick >/dev/null 2>&1; then _im=magick; else _im=convert; fi
-  for _s in 16 22 24 32 48 64 128 256 512; do
-    install -d "$pkgdir/usr/share/icons/hicolor/${_s}x${_s}/apps"
-    "$_im" "$_src_icon" -resize "${_s}x${_s}" \
-      "$pkgdir/usr/share/icons/hicolor/${_s}x${_s}/apps/music.png"
-  done
-  install -Dm644 "$_src_icon" "$pkgdir/usr/share/pixmaps/music.png"
-
-  # Upstream desktop entry uses an invalid Categories value ("Audio" alone);
-  # AudioVideo is required alongside Audio.
-  sed -i 's|^Categories=.*|Categories=AudioVideo;Audio;|' \
-    "$pkgdir/usr/share/applications/music.desktop"
 }
