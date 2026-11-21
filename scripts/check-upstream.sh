@@ -100,11 +100,11 @@ if [[ "$CHANGED" == true ]]; then
 fi
 
 {
-  echo "CHANGED=$CHANGED"
-  echo "NEED_PUBLISH=$NEED_PUBLISH"
-  echo "ACTION=$ACTION"
-  echo "REASON=$REASON"
-  echo "PKGVER=$NEW_VER"
-  echo "PKGREL=$NEW_REL"
+  printf 'CHANGED=%q\n' "$CHANGED"
+  printf 'NEED_PUBLISH=%q\n' "$NEED_PUBLISH"
+  printf 'ACTION=%q\n' "$ACTION"
+  printf 'REASON=%q\n' "$REASON"
+  printf 'PKGVER=%q\n' "$NEW_VER"
+  printf 'PKGREL=%q\n' "$NEW_REL"
 } > "$STATE_FILE"
 echo "state written to $STATE_FILE"

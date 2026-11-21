@@ -25,7 +25,7 @@ AUR_URL="ssh://aur@aur.archlinux.org/${PKG}.git"
 
 if [[ "$PUSH" != true ]]; then
   echo "[dry-run] would publish $PKG to $AUR_URL"
-  echo "files: $(cd "$SRC" && ls -1 | tr '\n' ' ')"
+  echo "files: PKGBUILD .SRCINFO${PKG:+ $PKG.install}"
   exit 0
 fi
 
