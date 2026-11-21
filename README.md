@@ -1,6 +1,6 @@
 # aur-packages
 
-`feng-yifan` 的 AUR 包管理仓库（PKGBUILD 为单一事实来源，配 GitHub Actions 自动同步到 AUR）。
+AUR 包管理仓库（PKGBUILD 为单一事实来源，配 GitHub Actions 自动同步到 AUR）。
 
 ## 已管理的包
 
